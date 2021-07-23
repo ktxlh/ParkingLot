@@ -1,8 +1,14 @@
 import unittest
-from parking_lot import ParkingLot, Car, Bike, Bus
+from parking_lot import Vehicle, VehicleType, ParkingLot, Car, Bike, Bus
 
 
 class TestParkingLot(unittest.TestCase):
+
+    def test_abc(self):
+        try:
+            Vehicle("Google", VehicleType.CAR)
+        except TypeError as e:
+            print("test_abc:", e)
 
     def test_park(self):
         parking_lot = ParkingLot(6, 30)

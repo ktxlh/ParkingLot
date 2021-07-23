@@ -1,6 +1,6 @@
 import random
 from enum import Enum
-from abc import ABC
+from abc import ABC, ABCMeta, abstractmethod
 
 class VehicleType(Enum):
     """Vehicle type class for all types of vehicles that can be parked."""
@@ -10,16 +10,17 @@ class VehicleType(Enum):
     BUS = 3
 
 
-class Vehicle(ABC):
+class Vehicle(ABC, metaclass=ABCMeta):
     """A vehicle for license plate, company name and their type."""
 
-    def __init__(self, company_name, type_of_vehicle):
+    def __init__(self, company_name, type_of_vehicle):  # self for the first argument to instance methods.
         self.company_name = company_name
         self.type_of_vehicle = type_of_vehicle
 
     def get_type(self):
         return self.type_of_vehicle
 
+    @abstractmethod
     def __eq__(self, other):
         """Checks if two vehicle objects are the same.
         
