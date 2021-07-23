@@ -1,151 +1,202 @@
+import random
 from enum import Enum
+from abc import ABC
 
-
-# Vehicle type class for what all type of vehicles can come for parking
 class VehicleType(Enum):
+    """Vehicle type class for all types of vehicles that can be parked."""
+    
     CAR = 1
     BIKE = 2
     BUS = 3
 
 
-# Vehicle class for license plate, company name and their type
-class Vehicle:
-    def __init__(self, licensePlate, companyName, type_of_vehicle):
-        self.licensePlate = licensePlate
-        self.companyName = companyName
+class Vehicle(ABC):
+    """A vehicle for license plate, company name and their type."""
+
+    def __init__(self, company_name, type_of_vehicle):
+        self.company_name = company_name
         self.type_of_vehicle = type_of_vehicle
 
-    def getType(self):
+    def get_type(self):
         return self.type_of_vehicle
 
-    '''overwrite __eq__ methods to correctly check if two vehicle objects are same. Otherwise, they will be 
-    checked at hashcode level not at content level.'''
-
     def __eq__(self, other):
+        """Checks if two vehicle objects are the same.
+        
+        Overwrites __eq__ methods. Otherwise, they will be checked at hashcode 
+        level not at content level.
+        """
+
         if other is None:
             return False
-        if self.licensePlate != other.licensePlate:
-            return False
-        if self.companyName != other.companyName:
-            return False
         if self.type_of_vehicle != other.type_of_vehicle:
+            return False
+        if self.company_name != other.company_name:
             return False
         return True
 
 
-# Car class inherited from Vehicle class for license plate, company name and their type
 class Car(Vehicle):
-    def __init__(self, licensePlate, companyName):
-        Vehicle.__init__(self, licensePlate, companyName, VehicleType.CAR)
+    """A car. 
+    
+    Inherited from Vehicle class for license plate, company name and their type.
+    """
+
+    def __init__(self, license_plate, company_name):
+        Vehicle.__init__(self, company_name, VehicleType.CAR)
+        self.license_plate = license_plate
+
+    def __eq__(self, other):
+        if Vehicle.__eq__(self, other) == False:
+            return False
+        if self.license_plate != other.license_plate:
+            return False
+        return True
 
 
-# Bike class inherited from Vehicle class for license plate, company name and their type
 class Bike(Vehicle):
-    def __init__(self, licensePlate, companyName):
-        Vehicle.__init__(self, licensePlate, companyName, VehicleType.BIKE)
+    """A bike. 
+    
+    Inherited from Vehicle class for license plate, company name and their type.
+    """
+
+    def __init__(self, owner_name, company_name):
+        Vehicle.__init__(self, company_name, VehicleType.BIKE)
+        self.owner_name = owner_name
+
+    def __eq__(self, other):
+        if Vehicle.__eq__(self, other) == False:
+            return False
+        if self.owner_name != other.owner_name:
+            return False
+        return True
 
 
-# Bus class inherited from Vehicle class for license plate, company name and their type
 class Bus(Vehicle):
-    def __init__(self, licensePlate, companyName):
-        Vehicle.__init__(self, licensePlate, companyName, VehicleType.BUS)
+    """A bus. 
 
+    Inherited from Vehicle class for license plate, company name and their type.
+    """
 
-class Slots:
-    def __init__(self, lane, spotNumber, type_of_vehicle):
-        # self.level = level
+    def __init__(self, license_plate, company_name):
+        Vehicle.__init__(self, company_name, VehicleType.BUS)
+        self.license_plate = license_plate
+
+    def __eq__(self, other):
+        if Vehicle.__eq__(self, other) == False:
+            return False
+        if self.license_plate != other.license_plate:
+            return False
+        return True
+
+class Slot:
+    def __init__(self, lane, spot_number, type_of_vehicle):
         self.lane = lane
-        self.spotNumber = spotNumber
-        self.vehicle = None
+        self.spot_number = spot_number
         self.type_of_vehicle = type_of_vehicle
+        self._vehicle = None  # "suggested" private
 
-    def isAvailable(self):
-        return self.vehicle == None
+    def is_available(self):
+        return self._vehicle == None
 
     def park(self, vehicle):
-        if vehicle.type_of_vehicle == self.type_of_vehicle:
-            self.vehicle = vehicle
-            return True
-        else:
+        if not self.is_available():
             return False
+        if vehicle.type_of_vehicle == self.type_of_vehicle:
+            self._vehicle = vehicle
+            return True
+        return False
 
-    def removeVehicle(self):
-        self.vehicle = None
-        return self.vehicle
+    def remove_vehicle(self):
+        vehicle = self.get_vehicle()
+        self._vehicle = None
+        return vehicle
 
-    def getVehicle(self):
-        return self.vehicle
-
-
-'''Level class - Each level is an independent entity with a floor number, its lanes and the slots within it. 
-The number of lanes are designed based on the number of slots. 10 slots make one lane'''
+    def get_vehicle(self):
+        return self._vehicle
 
 
-class Levels:
-    def __init__(self, floorNumber, no_of_slots):
-        self.floorNumber = floorNumber
+class Level:
+    """A level in a parking lot.
+    
+    Level class - Each level is an independent entity with a floor number, its 
+    lanes and the slots within it. The number of lanes are designed based on 
+    the number of slots. 10 slots make one lane.
+    """
+
+    def __init__(self, floor_number, num_of_slots):
         self.spots_per_lane = 10
-        self.lanes = no_of_slots / self.spots_per_lane
-        self.parkingSlots = set()
-        self.availableSpots = []
+        self.floor_number = floor_number
+        self.lanes = num_of_slots // self.spots_per_lane
+        self.spots = []
 
         # Check available spots in a lane
-        for lane in range(int(self.lanes)):
+        for lane in range(self.lanes):
             for i in range(self.spots_per_lane):
-                import random
-                # We will randomly assign a type to each slot.
-                self.availableSpots.append(Slots(lane, i, random.choice(list(VehicleType))))
-                # self.availableSpots.append(Slots(lane, i, type_of_vehicle))
+                # Randomly assign a type to each slot.
+                self.spots.append(
+                    Slot(lane, i, random.choice(list(VehicleType))))
 
-    # Park vehicle is spot is available
     def park(self, vehicle):
-        for slot in self.availableSpots:
+        """Parks a vehicle if some spot is available."""
+
+        for slot in self.spots:
             if slot.park(vehicle):
                 return True
         return False
 
-    # Remove vehicle from a spot
     def remove(self, vehicle):
-        for spot in self.availableSpots:
-            if spot.getVehicle() == vehicle:
-                spot.removeVehicle()
+        """Removes a vehicle from the spot it is parked."""
+
+        for spot in self.spots:
+            if spot.get_vehicle() == vehicle:
+                spot.remove_vehicle()
                 return True
         return False
 
-    # Company name for the vehicle parked at the available spots
-    def companyParked(self, companyName):
+    def company_parked(self, company_name):
+        """Shows the company name for the vehicles parked at the level."""
+
         all_vehicles = []
-        for spot in self.availableSpots:
-            vehicle = spot.getVehicle()
-            if (vehicle is not None) and (vehicle.companyName == companyName):
+        for spot in self.spots:
+            vehicle = spot.get_vehicle()
+            if (vehicle is not None) and (vehicle.company_name == company_name):
                 all_vehicles.append(vehicle)
-                #print(all_vehicles)
         return all_vehicles
 
 
-# A parking lot is made up of 'n' number of levels/floors and 'm' number of slots per floor.
 class ParkingLot:
-    def __init__(self, no_of_floor, no_of_slot):
-        self.levels = []
-        for i in range(no_of_floor):
-            self.levels.append(Levels(i, no_of_slot))
+    """A parking lot of one or more levels.
+    
+    A parking lot is made up of 'n' number of levels/floors and 'm' number of 
+    slots per floor.
+    """
 
-    # This operation inserts a vehicle accordingly, also takes care of what company vehicle it is.
-    def parkVehicle(self, vehicle):
+    def __init__(self, num_of_floor, num_of_slot):
+        self.levels = []
+        for i in range(num_of_floor):
+            self.levels.append(Level(i, num_of_slot))
+
+    def park_vehicle(self, vehicle):
+        """Inserts a vehicle and takes care of what company the vehicle is."""
+
         for level in self.levels:
             if level.park(vehicle):
                 return True
         return False
 
-    # This operation exits a vehicle 'C' in a level 'm'.
-    def leaveOperation(self, vehicle):
+    def leave_operation(self, vehicle):
+        """Removes a vehicle 'C' in a level 'm'."""
+
         for level in self.levels:
             if level.remove(vehicle):
                 return True
+        return False
 
-    # This operation allows the user to view the list of vehicles parked for a particular company.
-    def companyParked(self, companyName):
+    def company_parked(self, company_name):
+        """Show the list of vehicles parked for a particular company."""
+
         all_vehicles = []
         for level in self.levels:
-            all_vehicles.extend(level.companyParked(companyName))
+            all_vehicles.extend(level.company_parked(company_name))
         return all_vehicles

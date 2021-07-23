@@ -5,45 +5,45 @@ from parking_lot import ParkingLot, Car, Bike, Bus
 class TestParkingLot(unittest.TestCase):
 
     def test_park(self):
-        parkingLotObj = ParkingLot(6, 30)
-        res2 = parkingLotObj.parkVehicle(Car(10, "Amazon"))
-        res3 = parkingLotObj.parkVehicle(Bike(20, "Amazon"))
-        res4 = parkingLotObj.parkVehicle(Bus(30, "Microsoft"))
+        parking_lot = ParkingLot(6, 30)
+        res2 = parking_lot.park_vehicle(Car(10, "Amazon"))
+        res3 = parking_lot.park_vehicle(Bike("Ann", "Amazon"))
+        res4 = parking_lot.park_vehicle(Bus(30, "Microsoft"))
 
-        self.assertEqual(res2, True)
-        self.assertEqual(res3, True)
-        self.assertEqual(res4, True)
+        self.assertTrue(res2)
+        self.assertTrue(res3)
+        self.assertTrue(res4)
 
+        while parking_lot.park_vehicle(Bike("Brian", "Verizon")):
+            continue
+            
+        res5 = parking_lot.park_vehicle(Bike("Cherry", "Verizon"))
+        self.assertFalse(res5)
 
     def test_leave_operation(self):
-        parkingLotObj = ParkingLot(6, 30)
-        self.assertTrue(parkingLotObj.parkVehicle(Car(20, "Google")))
-        #self.assertTrue(parkingLotObj.leaveOperation(Car(10, "Google")))
-        self.assertTrue(parkingLotObj.leaveOperation(Car(20, "Google")))
-        self.assertEqual(parkingLotObj.leaveOperation(Car(20, "Google")), None)
-
+        parking_lot = ParkingLot(6, 30)
+        self.assertTrue(parking_lot.park_vehicle(Car(20, "Google")))
+        self.assertFalse(parking_lot.leave_operation(Bus(20, "Google")))
+        self.assertTrue(parking_lot.leave_operation(Car(20, "Google")))
+        self.assertFalse(parking_lot.leave_operation(Car(20, "Google")))
 
     def test_companyParked(self):
-        parkingLotObj = ParkingLot(6, 30)
-        # res1 = parkingLotObj.parkVehicle(Car(20, "Google"))
-        # res2 = parkingLotObj.companyParked("Google")
-        self.assertTrue(parkingLotObj.parkVehicle(Car(20, "Google")))
-        self.assertEqual(parkingLotObj.companyParked("Google"), [Car(20, "Google")])
-        #self.assertEqual(parkingLotObj.companyParked("Google"), Car(10, "Google"))
-        print(parkingLotObj.companyParked("Google"))
+        parking_lot = ParkingLot(6, 30)
+        self.assertTrue(parking_lot.park_vehicle(Car(20, "Google")))
+        self.assertEqual(parking_lot.company_parked("Google"), [Car(20, "Google")])
+        print(parking_lot.company_parked("Google"))
 
-        
     def test_all(self):
-        parkingLotObj = ParkingLot(3, 10)
-        # Atleast 1 parking spot for car.
+        parking_lot = ParkingLot(3, 10)
+        # Assume at least 1 parking spot for car.
         # First park a car, it should return True.
-        self.assertTrue(parkingLotObj.parkVehicle(Car(10, "Google")))
+        self.assertTrue(parking_lot.park_vehicle(Car(10, "Google")))
         # Get the list of cars, it should give one car we parked.
-        self.assertEqual(parkingLotObj.companyParked("Google"), [Car(10, "Google")])
+        self.assertEqual(parking_lot.company_parked("Google"), [Car(10, "Google")])
         # Remove that car successfully.
-        self.assertTrue(parkingLotObj.leaveOperation(Car(10, "Google")))
+        self.assertTrue(parking_lot.leave_operation(Car(10, "Google")))
         # Now the list of cars should be empty.
-        self.assertEqual(parkingLotObj.companyParked("Google"), [])
+        self.assertEqual(parking_lot.company_parked("Google"), [])
 
 
 if __name__ == '__main__':
