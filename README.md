@@ -1,8 +1,9 @@
 # ParkingLot
+**Announcement: Singleton & factory are put in Solution to for your convenience.**
+
 -----------------------------------
 | Parking lot design using Python |
 -----------------------------------
-
 
 Process Brief :
 --------------
