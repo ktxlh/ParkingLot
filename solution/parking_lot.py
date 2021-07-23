@@ -2,6 +2,7 @@ import random
 from enum import Enum
 from abc import ABC, ABCMeta, abstractmethod
 
+
 class VehicleType(Enum):
     """Vehicle type class for all types of vehicles that can be parked."""
     
@@ -91,6 +92,7 @@ class Bus(Vehicle):
         return True
 
 class Slot:
+
     def __init__(self, lane, spot_number, type_of_vehicle):
         self.lane = lane
         self.spot_number = spot_number
